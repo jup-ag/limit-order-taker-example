@@ -1,0 +1,25 @@
+{
+  "name": "limit-order-taker-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "pnpm build && node dist/index.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@coral-xyz/anchor": "0.28.1-beta.1",
+    "@jup-ag/limit-order-sdk": "^0.1.5",
+    "@solana/web3.js": "^1.78.4",
+    "decimal.js": "^10.4.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.1",
+    "typescript": "^5.1.6"
+  }
+}
