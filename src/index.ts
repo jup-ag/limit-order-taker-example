@@ -12,14 +12,12 @@ import { getQuote, getSwapIx } from "./jupiterApi";
 import { Wallet, BN } from "@coral-xyz/anchor";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { config } from "dotenv";
+import { getTakerFee } from "./fee";
 
 config();
-const TAKER_FEE_BPS = 20;
 
 export async function main() {
   try {
-    // It is recommended that you use your own RPC endpoint.
-    // This RPC endpoint is only for demonstration purposes so that this example will run.
     const wallet = new Wallet(
       Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY || ""))
     );
@@ -27,6 +25,7 @@ export async function main() {
       process.env.RPC_ENDPOINT || "https://api.devnet.solana.com"
     );
     const limitOrder = new LimitOrderProvider(connection);
+    const fee = await limitOrder.getFee();
 
     while (true) {
       // get open orders
@@ -72,7 +71,10 @@ export async function main() {
             outputMint,
             makerOutputAccount,
           },
+          publicKey,
         } = order;
+
+        console.log("Try to execute order", publicKey.toBase58());
 
         // return if maker output token account has closed
         const makerOutputAccountInfo = await connection.getAccountInfo(
@@ -90,8 +92,9 @@ export async function main() {
         const quoteOutAmount = new BN(route.outAmount);
 
         // calculate taking amount with taker fee
+        const takerFee = getTakerFee(inputMint, outputMint, fee);
         const takingAmountWithTakerFee = takingAmount
-          .muln(10000 + TAKER_FEE_BPS)
+          .muln(10000 + takerFee)
           .divn(10000);
 
         // execute if jupiter quote out amount is greater than taking amount with taker fee
